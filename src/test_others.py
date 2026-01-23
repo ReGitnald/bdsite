@@ -1,8 +1,7 @@
 import unittest
 
 from textnode import TextNode, TextType
-from split_nodes import split_nodes_delimiter
-from extract_markdown import extract_markdown_links, extract_markdown_images
+from others import *
 
 
 class TestTextNode(unittest.TestCase):
@@ -36,3 +35,48 @@ class TestTextNode(unittest.TestCase):
             "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png)"
         )
         self.assertListEqual([("image", "https://i.imgur.com/zjjcJKZ.png")], matches)
+    def test_split_images(self):
+        node = TextNode(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("This is text with an ", TextType.TEXT),
+                TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
+                TextNode(" and another ", TextType.TEXT),
+                TextNode(
+                    "second image", TextType.IMAGE, "https://i.imgur.com/3elNhQu.png"
+                ),
+            ],
+            new_nodes,
+        )
+    def test_split_links(self):
+        node = TextNode(
+            "This is text with a [link](http://example.com) and another [second link](http://example.org)",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_link([node])
+        self.assertListEqual(
+            [
+                TextNode("This is text with a ", TextType.TEXT),
+                TextNode("link", TextType.LINK, "http://example.com"),
+                TextNode(" and another ", TextType.TEXT),
+                TextNode("second link", TextType.LINK, "http://example.org"),
+            ],
+            new_nodes,
+        )
+    def test_text_to_textnodes(self):
+        text = "This is **bold** text with an ![image](https://i.imgur.com/zjjcJKZ.png) and a [link](http://example.com)."
+        nodes = text_to_textnodes(text)
+        expected_nodes = [
+            TextNode("This is ", TextType.TEXT),
+            TextNode("bold", TextType.BOLD),
+            TextNode(" text with an ", TextType.TEXT),
+            TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
+            TextNode(" and a ", TextType.TEXT),
+            TextNode("link", TextType.LINK, "http://example.com"),
+            TextNode(".", TextType.TEXT),
+        ]
+        self.assertEqual(nodes, expected_nodes)
