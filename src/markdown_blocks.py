@@ -1,7 +1,8 @@
-from textnode import TextNode, TextType
+from textnode import TextNode, TextType, text_node_to_html_node
 import re
 from enum import Enum
 from htmlnode import *
+from others import *
 
 class BlockType(Enum):
     PARAGRAPH = "paragraph"
@@ -43,47 +44,57 @@ def block_to_block_type(block):
     return BlockType.PARAGRAPH
 
 def markdown_to_html_node(markdown):
+    markdown = markdown.strip("\n")
+    markdown = markdown.strip()
     blocks = markdown_to_blocks(markdown)
     html_nodes = []
     for block in blocks:
         block_type = block_to_block_type(block)
         if block_type == BlockType.PARAGRAPH:
+            block = strip_by_line(block)
             p_node = HTMLNode("p")
-            p_node.children = text_to_textnodes(block)
+            p_node.children = [text_node_to_html_node(x) for x in text_to_textnodes(block)]
             html_nodes.append(p_node)
         elif block_type == BlockType.HEADER:
+            block = strip_by_line(block)
             match = re.match(r'^(#{1,6})\s+(.*)', block.strip())
             if match:
                 hashes, content = match.groups()
                 level = len(hashes)
                 h_node = HTMLNode(f"h{level}")
-                h_node.children = text_to_textnodes(content)
+                h_node.children = [text_node_to_html_node(x) for x in text_to_textnodes(content)]
                 html_nodes.append(h_node)
         elif block_type == BlockType.CODE_BLOCK:
-            code_content = block.strip()[3:-3].strip()
-            code_node = HTMLNode("pre")
-            code_child = HTMLNode("code")
-            code_child.value = code_content
+            code_content = "\n".join(block.split("\n")[1:-1]) + "\n"
+            code_node = HTMLNode("pre", children=[])
+            code_child = HTMLNode("code", value=code_content)
             code_node.children.append(code_child)
             html_nodes.append(code_node)
         elif block_type == BlockType.QUOTE:
             quote_node = HTMLNode("blockquote")
-            quote_content = "\n".join(line[2:] for line in block.split("\n"))
-            quote_node.children = text_to_textnodes(quote_content)
+            quote_content = " ".join(line[2:] for line in block.split("\n"))
+            quote_node.children = [text_node_to_html_node(x) for x in text_to_textnodes(quote_content.strip)]
             html_nodes.append(quote_node)
         elif block_type == BlockType.UNORDERED_LIST:
             ul_node = HTMLNode("ul")
             for line in block.split("\n"):
                 li_content = line[2:].strip()
-                li_node = HTMLNode("li")
-                li_node.children = text_to_textnodes(li_content)
+                li_node = HTMLNode("li", children=[])
+                li_node.children = [text_node_to_html_node(x) for x in text_to_textnodes(li_content)]
                 ul_node.children.append(li_node)
             html_nodes.append(ul_node)
         elif block_type == BlockType.ORDERED_LIST:
             ol_node = HTMLNode("ol")
             for line in block.split("\n"):
                 li_content = re.sub(r'^\d+\.\s', '', line).strip()
-                li_node = HTMLNode("li")
-                li_node.children = text_to_textnodes(li_content)
+                li_node = HTMLNode("li", children=[])
+                li_node.children = [text_node_to_html_node(x) for x in text_to_textnodes(li_content)]
                 ol_node.children.append(li_node)
             html_nodes.append(ol_node)
+    parent = ParentNode("div", html_nodes)
+    return parent
+    
+def strip_by_line(block):
+    lines = block.split("\n")
+    stripped_lines = [line.strip() for line in lines]
+    return " ".join(stripped_lines)

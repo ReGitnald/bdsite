@@ -7,11 +7,22 @@ class HTMLNode:
         self.props = props
 
     def to_html(self):
-        raise NotImplementedError
+        if self.value is None and self.children is None:
+            raise ValueError("invalid HTML: no value and no children")
+        if self.tag is None and self.children is None:
+            return str(self.value)
+        if self.children:
+            children_html = ""
+            for child in self.children:
+                children_html += child.to_html()
+            return f"<{self.tag}{self.props_to_html()}>{children_html}</{self.tag}>"
+        else:
+            return f"<{self.tag}{self.props_to_html()}>{str(self.value)}</{self.tag}>"
+
     
     def props_to_html(self):
-        if self.props is not None:
-            stringup = " ".join([f"{k}={v}" for k, v in self.props.items()])
+        if self.props:
+            stringup = "".join([f" {k}=\"{v}\"" for k, v in self.props.items()])
         else:
             stringup = ""
         return stringup
@@ -29,7 +40,7 @@ class LeafNode(HTMLNode):
         if self.tag is None:
             return str(self.value)
         props_str = self.props_to_html()
-        html_tag = f"<{self.tag}{' ' + props_str if props_str else ''}>{str(self.value)}</{self.tag}>"
+        html_tag = f"<{self.tag}{ props_str if props_str else ''}>{str(self.value)}</{self.tag}>"
         return html_tag
     
 class ParentNode(HTMLNode):
