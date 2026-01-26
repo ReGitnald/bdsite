@@ -65,3 +65,4 @@ def text_to_textnodes(text):
     nodes_after_italic = split_nodes_delimiter(nodes_after_bold, "_", TextType.ITALIC)
     nodes_after_code = split_nodes_delimiter(nodes_after_italic, "`", TextType.CODE)
     return nodes_after_code
+
