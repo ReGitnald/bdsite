@@ -1,8 +1,5 @@
-import os
 from textnode import TextNode, TextType
 import re
-import glob
-import shutil
 
 def extract_markdown_images(text):
     return re.findall(r'!\[([^\]]*)\]\(([^)]+)\)', text)
@@ -72,11 +69,3 @@ def text_to_textnodes(text):
     nodes_after_code = split_nodes_delimiter(nodes_after_italic, "`", TextType.CODE)
     return nodes_after_code
 
-def dir_copy_files(src_dir, dest_dir, pattern="**/*"):
-    shutil.rmtree(dest_dir, ignore_errors=True)
-    os.makedirs(dest_dir, exist_ok=True)
-    for filepath in glob.glob(os.path.join(src_dir, pattern), recursive=True):
-        if os.path.isfile(filepath):
-            shutil.copy(filepath, dest_dir)
-        else:
-            dir_copy_files(filepath, os.path.join(dest_dir, os.path.basename(filepath)), pattern="*")
