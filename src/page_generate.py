@@ -22,7 +22,7 @@ def generate_page(from_path, template_path, dest_path, basepath = "/"):
             title = extract_title(markdown)
             markdown_string = markdown_to_html_node(markdown).to_html()
             final_html = template.replace("{{ Content }}", markdown_string).replace("{{ Title }}", title)
-            final_html = final_html.replace('href="/', f'href="{basepath}').replace('src="/', 'src="{basepath}')
+            final_html = final_html.replace('href="/', f'href="{basepath}').replace('src="/', f'src="{basepath}')
             with open(dest_path, "w", encoding="utf-8") as df:
                 df.write(final_html)
 
