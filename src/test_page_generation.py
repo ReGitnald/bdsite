@@ -1,6 +1,6 @@
 import unittest
 
-from htmlnode import HTMLNode, LeafNod
+from htmlnode import HTMLNode, LeafNode
 from others import dir_copy_files
 from page_generate import generate_page, extract_title
 

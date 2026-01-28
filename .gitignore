@@ -1,6 +1,1 @@
-public/
-src/__pycache__/htmlnode.cpython-38.pyc
-src/__pycache__/markdown_blocks.cpython-38.pyc
-src/__pycache__/others.cpython-38.pyc
-src/__pycache__/test_htmlnode.cpython-38.pyc
-src/__pycache__/test_markdown_blocks.cpython-38.pyc
+src/__pycache__/

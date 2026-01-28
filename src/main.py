@@ -2,14 +2,20 @@ from textnode import *
 from others import *
 from htmlnode import *
 from markdown_blocks import *
+from page_generate import *
 import os
-print("Hello world")
+import sys
+
+print("Starting up...")
 def main():
-    tn = TextNode( "dink doink", TextType.BOLD, "www.boot.dev")
-    print(tn)
-    if os.path.exists("public"):
-        dir_copy_files("static", "public", "*")
+    if sys.argv.__len__() > 1:
+        basepath = sys.argv[1]
     else:
-        os.mkdir("public")
-        dir_copy_files("static", "public", "*")
+        basepath = "/"
+    if os.path.exists("docs"):
+        dir_copy_files("static", "docs", "*")
+    else:
+        os.mkdir("docs")
+        dir_copy_files("static", "docs", "*")
+    generate_pages_recursive("content", "template.html", "docs", basepath=basepath)
 main()

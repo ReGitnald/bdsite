@@ -17,6 +17,9 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
             new_nodes.append(node)
             continue
         parts = node.text.split(delimiter)
+        if node.text.count(delimiter) == 1:
+            new_nodes.append(node)
+            continue
         if len(parts)%2 == 0:
             raise ValueError("Delimiter splitting error: even number of parts means unmatched delimiter")
         for i, part in enumerate(parts):
